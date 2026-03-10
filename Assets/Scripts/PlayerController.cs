@@ -1,16 +1,21 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerController : MonoBehaviour 
+public class PlayerController : SharedController
 {
     private InputAction _move;
     private InputAction _jump;
     private InputAction _crouch;
     private InputAction _sprint;
+    private InputAction _attack;
 
     private bool _isCrouching = false;
     private bool _isSprinting = false;
+
+    [Header("Camera")]
+    [SerializeField] private Camera _camera;
 
     [Header("Player Control Settings")]
     [SerializeField] private float _jumpHeight = 5.0f;
@@ -21,28 +26,38 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector3 _crouchScale = new Vector3(1f, 0.5f, 1f);
     [SerializeField] private Vector3 _standingScale = Vector3.one;
 
+    [Header("Player Stats")]
+    [SerializeField] private int _initialHealth = 100;
+
     private float _verticalVelocity;
-
-    [Header("Camera")]
-    [SerializeField] private Camera _camera;
-
     private CharacterController _character;
 
-    private void Start()
+    private int _gold = 0;
+    private int _experience = 0;
+    private int _attackDamage = 10;
+    
+    protected override void Start()
     {
+        base.Start();
+        _health = _initialHealth;
         _character = GetComponent<CharacterController>();
         _move = InputSystem.actions.FindAction("Move");
         _jump = InputSystem.actions.FindAction("Jump");
         _crouch = InputSystem.actions.FindAction("Crouch");
         _sprint = InputSystem.actions.FindAction("Sprint");
+        _attack = InputSystem.actions.FindAction("Attack");
     }
 
     private void Update()
     {
+        if (_currentLifeState == LifeState.IsDead) { return; }
+
         HandleMovement();
         HandleGravityAndJump();
         HandleCrouch();
         HandleSprint();
+
+        Debug.Log($"Player Health: {_health}");
     }
 
     private void HandleMovement()
@@ -111,6 +126,17 @@ public class PlayerController : MonoBehaviour
         {
             _isSprinting = false;
         } 
+    }
+
+    public void AttackEnemy(int damage)
+    {
+        // todo
+    }
+
+    protected override void OnDeath()
+    {
+        Debug.Log("Player died");
+        // Handle player death & player specific death behavior
     }
 
 }
