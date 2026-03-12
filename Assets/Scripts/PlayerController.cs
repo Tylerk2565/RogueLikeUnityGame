@@ -18,7 +18,7 @@ public class PlayerController : SharedController
     [SerializeField] private Camera _camera;
 
     [Header("Player Control Settings")]
-    [SerializeField] private float _jumpHeight = 5.0f;
+    [SerializeField] private float _jumpHeight = 2.5f;
     [SerializeField] private float _gravity = -50.0f;
     [SerializeField] private float _speed = 10.0f;
     [SerializeField] private float _sprintSpeed = 20.0f;
