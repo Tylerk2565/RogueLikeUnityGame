@@ -22,7 +22,7 @@ public class PlayerController : MonoBehaviour
     #region Component References
     [SerializeField] private Camera _camera;
     private CharacterController _character;
-    private Health _health;
+    private Health _enemy;
     #endregion
 
     #region Settings
@@ -50,7 +50,7 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         _character = GetComponent<CharacterController>();
-        _health = GetComponent<Health>();
+        _enemy = GetComponent<Health>();
 
         _move = InputSystem.actions.FindAction("Move");
         _jump = InputSystem.actions.FindAction("Jump");
@@ -58,12 +58,12 @@ public class PlayerController : MonoBehaviour
         _sprint = InputSystem.actions.FindAction("Sprint");
         _attack = InputSystem.actions.FindAction("Attack");
 
-        _health.OnDeath += HandleDeath;
+        _enemy.OnDeath += HandleDeath;
     }
 
     private void Update()
     {
-        if (_health.IsDead())
+        if (_enemy.IsDead())
         {
             if (!_hasHandledDeath)
             {
@@ -215,6 +215,11 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
+
+    public void TakeDamage(float amount)
+    {
+        _enemy.TakeDamage(amount);
+    }
     #endregion
 
     #region Events
@@ -226,7 +231,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (_health != null)
-            _health.OnDeath -= HandleDeath;  
+        if (_enemy != null)
+            _enemy.OnDeath -= HandleDeath;  
     }
 }

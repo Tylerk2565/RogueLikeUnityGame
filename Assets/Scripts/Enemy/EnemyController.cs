@@ -10,7 +10,7 @@ public class EnemyController : MonoBehaviour
 
     #region Components & References
     private NavMeshAgent _navMeshAgent;
-    private Health _health;
+    private Health _player;
     private Transform _playerTransform;
     #endregion
 
@@ -35,7 +35,7 @@ public class EnemyController : MonoBehaviour
     private void Start()
     {
         _navMeshAgent = GetComponent<NavMeshAgent>();
-        _health = GetComponent<Health>();
+        _player = GetComponent<Health>();
 
         // Cache player transform
         GameObject playerObject = GameObject.Find("PlayerObject");
@@ -53,12 +53,12 @@ public class EnemyController : MonoBehaviour
             _playerMask = LayerMask.GetMask("Player");
         }
 
-        _health.OnDeath += HandleDeath;
+        _player.OnDeath += HandleDeath;
     }
 
     private void Update()
     {
-        if (_health.IsDead())
+        if (_player.IsDead())
         {
             if (!_hasHandledDealth)
             {
@@ -102,7 +102,6 @@ public class EnemyController : MonoBehaviour
     #endregion
 
     #region AI Behaviors
-  
     private void Chase()
     {
         _navMeshAgent.destination = _playerTransform.position;
@@ -138,7 +137,7 @@ public class EnemyController : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
-        _health.TakeDamage(amount);
+        _player.TakeDamage(amount);
     }
     #endregion
 
@@ -149,11 +148,34 @@ public class EnemyController : MonoBehaviour
         _navMeshAgent.enabled = false;
         // Additional death logic here
     }
+
+    private void DropLoot()
+    {
+        // drop gold and xp and add them to the players gold and xp
+        // drop small gold coins that the player picks up
+        // drop small xp orbs that the player picks up
+
+
+    }
+
+    private void PlayDeathParticals()
+    {
+        // todo - look into partical system on death
+    }
+
+    private void PlayDeathSounds()
+    {
+        // todo - look into play sounds on death
+    }
     #endregion
 
     private void OnDestroy()
     {
-        if (_health != null)
-            _health.OnDeath -= HandleDeath;
+        if (_player != null)
+            _player.OnDeath -= HandleDeath;
+
+        DropLoot();
+        PlayDeathParticals();
+        PlayDeathSounds();
     }
 }

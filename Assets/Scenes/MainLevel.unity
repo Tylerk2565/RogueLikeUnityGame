@@ -133,6 +133,7 @@ GameObject:
   - component: {fileID: 20722575}
   - component: {fileID: 20722574}
   - component: {fileID: 20722580}
+  - component: {fileID: 20722581}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Untagged
@@ -152,10 +153,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9911c9cbc418a2e48904f2d12318557a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyController
+  _stoppingDistance: 1.5
   _attackRange: 1.5
-  _attackCooldown: 2
   _attackDamage: 10
-  _initialHealth: 100
+  _attackCooldown: 2
+  _playerMask:
+    serializedVersion: 2
+    m_Bits: 0
 --- !u!195 &20722575
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -272,6 +276,19 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &20722581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20722573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 541bd558eae84e74da915797ce386cb2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+  _maxHealth: 100
 --- !u!1 &117783017
 GameObject:
   m_ObjectHideFlags: 0
@@ -429,7 +446,7 @@ GameObject:
   - component: {fileID: 369949919}
   - component: {fileID: 369949918}
   - component: {fileID: 369949917}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Obstacle (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -812,7 +829,7 @@ GameObject:
   - component: {fileID: 757965505}
   - component: {fileID: 757965504}
   - component: {fileID: 757965503}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Obstacle (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -972,7 +989,7 @@ GameObject:
   - component: {fileID: 1059499032}
   - component: {fileID: 1059499031}
   - component: {fileID: 1059499030}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Obstacle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1268,7 +1285,6 @@ MonoBehaviour:
   _rotationSpeed: 15
   _crouchScale: {x: 1, y: 0.5, z: 1}
   _standingScale: {x: 1, y: 1, z: 1}
-  _initialHealth: 100
   _attackDamage: 10
   _attackRange: 20
   _attackCooldown: 2
@@ -1432,9 +1448,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1445231171}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b689cb0413e229d44898383e9addca23, type: 3}
+  m_Script: {fileID: 11500000, guid: 541bd558eae84e74da915797ce386cb2, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RaycastController
+  m_EditorClassIdentifier: Assembly-CSharp::Health
+  _maxHealth: 100
 --- !u!1 &1839256278
 GameObject:
   m_ObjectHideFlags: 0
@@ -1447,7 +1464,7 @@ GameObject:
   - component: {fileID: 1839256281}
   - component: {fileID: 1839256280}
   - component: {fileID: 1839256279}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Obstacle (2)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1556,7 +1573,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2001589772}
   - component: {fileID: 2001589771}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: CrosshairManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1638,7 +1655,7 @@ GameObject:
   - component: {fileID: 2145310981}
   - component: {fileID: 2145310980}
   - component: {fileID: 2145310979}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Obstacle (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}

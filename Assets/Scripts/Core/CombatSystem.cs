@@ -23,7 +23,7 @@ public static class CombatSystem
                 Debug.DrawRay(origin, direction * range, Color.yellow, 1f);
             }
         }
-
+         
         return hitDetected;
     }
 }
