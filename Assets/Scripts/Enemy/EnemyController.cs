@@ -1,17 +1,19 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Experimental.AI;
 
 public class EnemyController : MonoBehaviour 
 {
     #region State Variables
     private enum EnemyState { IsChasing, IsAttacking }
     private EnemyState _currentEnemyState = EnemyState.IsChasing;
+    private enum LifeState { IsAlive, IsDead }
+    private LifeState _currentLifeState = LifeState.IsAlive;
     #endregion
 
     #region Components & References
-    private NavMeshAgent _navMeshAgent;
-    private Health _player;
-    private Transform _playerTransform;
+    private NavMeshAgent _enemy;
+    private PlayerController _player;
     #endregion
 
     #region Settings
@@ -26,69 +28,71 @@ public class EnemyController : MonoBehaviour
 
     [Header("Combat")]
     [SerializeField] private LayerMask _playerMask;
+    private float _initialHealth = 100f;
+    private float _currentHealth;
     #endregion
 
     #region State Variables (Private)
-    private bool _hasHandledDealth = false;
+    private bool _hasHandledDeath = false;
     #endregion
 
     private void Start()
     {
-        _navMeshAgent = GetComponent<NavMeshAgent>();
-        _player = GetComponent<Health>();
-
-        // Cache player transform
-        GameObject playerObject = GameObject.Find("PlayerObject");
-        if (playerObject != null)
-        {
-            _playerTransform = playerObject.transform;
-        }
-        else
-        {
-            Debug.LogError("PlayerObject not found!");
-        }
+        _currentHealth = _initialHealth;
+        _enemy = GetComponent<NavMeshAgent>();
+        _player = GameObject.Find("PlayerObject").GetComponent<PlayerController>();
 
         if (_playerMask == 0)
         {
             _playerMask = LayerMask.GetMask("Player");
         }
-
-        _player.OnDeath += HandleDeath;
     }
 
     private void Update()
     {
-        if (_player.IsDead())
+        _currentLifeState = GetLifeState();
+        if (_currentLifeState == LifeState.IsDead)
         {
-            if (!_hasHandledDealth)
+            if (!_hasHandledDeath)
             {
-                _hasHandledDealth = true;
-                _navMeshAgent.enabled = false;
+                HandleDeath();
+                _hasHandledDeath = true;
             }
             return;
         }
 
-        if (_playerTransform == null) { return; }
+        _hasHandledDeath = false; 
 
         _currentEnemyState = GetEnemyState();
-
-        switch (GetEnemyState())
+        switch (_currentEnemyState)
         {
             case EnemyState.IsChasing:
                 Chase();
                 break;
             case EnemyState.IsAttacking:
-                Attack();
+                AttackPlayer();
                 break;
         }
 
-        Debug.Log($"Enemy State: {_currentEnemyState}, Distance to player: {Vector3.Distance(transform.position, _playerTransform.position):F2}");
+        //Debug.Log($"Enemy State: {_currentEnemyState}, Distance to player: {Vector3.Distance(transform.position, _player.transform.position):F2}");
+    }
+
+    private LifeState GetLifeState()
+    {
+        if (_currentHealth <= 0)
+        {
+            return LifeState.IsDead;
+        }
+        else
+        {
+            return LifeState.IsAlive;
+        }
     }
 
     #region State Management
     private EnemyState GetEnemyState()
     {
-        float distanceToPlayer = Vector3.Distance(transform.position, _playerTransform.position);
+        float distanceToPlayer = Vector3.Distance(transform.position, _player.transform.position);
         
         if (distanceToPlayer <= _attackRange)
         {
@@ -104,48 +108,49 @@ public class EnemyController : MonoBehaviour
     #region AI Behaviors
     private void Chase()
     {
-        _navMeshAgent.destination = _playerTransform.position;
-        _navMeshAgent.stoppingDistance = _stoppingDistance;
-    }
-
-    private void Attack()
-    {
-        _navMeshAgent.destination = transform.position;
-
-        if (Time.time - _lastAttackTime >= _attackCooldown)
-        {
-            AttackPlayer();
-            _lastAttackTime = Time.time;
-        }
+        _enemy.destination = _player.transform.position;
+        _enemy.stoppingDistance = _stoppingDistance;
     }
     #endregion
 
     #region Combat
     public void AttackPlayer()
     {
-        if (CombatSystem.TryRaycastAttack(transform.position, transform.forward,
-            _attackRange, _playerMask, out RaycastHit hit))
+        if (Time.time - _lastAttackTime < _attackCooldown) { return; }
+
+        LayerMask playerMask = LayerMask.GetMask("Player");
+
+        Ray ray = new(transform.position, transform.forward);
+
+        if (Physics.Raycast(ray, out RaycastHit hit, _attackRange, playerMask))
         {
-            Health playerHealth = hit.collider.GetComponent<Health>();
-            if (playerHealth != null && !playerHealth.IsDead()) 
+            Debug.DrawRay(ray.origin, ray.direction * hit.distance, Color.green);
+            Debug.DrawRay(hit.point, Vector3.up * 0.5f, Color.red);
+
+            PlayerController player = hit.collider.GetComponent<PlayerController>();
+            if (player != null)
             {
-                playerHealth.TakeDamage(_attackDamage);
-                Debug.Log("Player Hit! Dealt " + _attackDamage + " damage.");
+                player.TakeDamage(_attackDamage);
+                _lastAttackTime = Time.time;
+                Debug.Log("Player hit! Dealt " + _attackDamage + " damage.");
             }
         }
+        
     }
 
     public void TakeDamage(float amount)
     {
-        _player.TakeDamage(amount);
+        if (_currentLifeState == LifeState.IsDead) { return; }
+        _currentHealth -= amount;
     }
     #endregion
 
     #region Events
     private void HandleDeath()
     {
+        if (_currentLifeState == LifeState.IsDead) { return; }
         Debug.Log("Enemy died!");
-        _navMeshAgent.enabled = false;
+        _enemy.enabled = false;
         // Additional death logic here
     }
 
@@ -171,9 +176,7 @@ public class EnemyController : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (_player != null)
-            _player.OnDeath -= HandleDeath;
-
+        // TODO - fix this 
         DropLoot();
         PlayDeathParticals();
         PlayDeathSounds();

@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -17,12 +16,14 @@ public class PlayerController : MonoBehaviour
     private MovementState _currentMovementState = MovementState.IsIdle;
     private enum CombatState { IsUnarmed, IsArmed, IsAttacking }
     private CombatState _currentCombatState = CombatState.IsUnarmed;
+    private enum LifeState { IsAlive, IsDead }
+    private LifeState _currentLifeState = LifeState.IsAlive;
     #endregion
 
     #region Component References
     [SerializeField] private Camera _camera;
-    private CharacterController _character;
-    private Health _enemy;
+    private CharacterController _player;
+    private EnemyController _enemy;
     #endregion
 
     #region Settings
@@ -42,6 +43,10 @@ public class PlayerController : MonoBehaviour
     private float _lastAttackTime = 0f;
     #endregion
 
+    [Header("Health")]
+    private float _currentHealth;
+    [SerializeField] private float _initialHealth = 100f;
+
     #region State Variables (Private)
     private float _verticalVelocity;
     private bool _hasHandledDeath = false;
@@ -49,28 +54,29 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        _character = GetComponent<CharacterController>();
-        _enemy = GetComponent<Health>();
-
+        _currentHealth = _initialHealth;
+        _player = GetComponent<CharacterController>();
         _move = InputSystem.actions.FindAction("Move");
         _jump = InputSystem.actions.FindAction("Jump");
         _crouch = InputSystem.actions.FindAction("Crouch");
         _sprint = InputSystem.actions.FindAction("Sprint");
         _attack = InputSystem.actions.FindAction("Attack");
-
-        _enemy.OnDeath += HandleDeath;
     }
 
     private void Update()
     {
-        if (_enemy.IsDead())
+        _currentLifeState = GetLifeState();
+        if (_currentLifeState == LifeState.IsDead)
         {
             if (!_hasHandledDeath)
             {
+                HandleDeath();
                 _hasHandledDeath = true;
             }
             return;
         }
+
+        _hasHandledDeath = false;
 
         HandleGravity();
         HandleCrouch();
@@ -138,6 +144,18 @@ public class PlayerController : MonoBehaviour
         else
             return CombatState.IsUnarmed;
     }
+
+    private LifeState GetLifeState()
+    {
+        if (_currentHealth <= 0)
+        {
+            return LifeState.IsDead;
+        }
+        else
+        {
+            return LifeState.IsAlive;
+        }
+    }
     #endregion
 
     #region Movement Handlers
@@ -157,7 +175,7 @@ public class PlayerController : MonoBehaviour
 
         move.y = _verticalVelocity * Time.deltaTime;
 
-        _character.Move(move);
+        _player.Move(move);
 
         if (moveDirection.sqrMagnitude > 0.01f)
         {
@@ -185,11 +203,11 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJump()
     {
-        if (_character.isGrounded)
+        if (_player.isGrounded)
         {
             _verticalVelocity = 0f;
 
-            if (_jump.WasPressedThisFrame())
+            if (_jump.IsPressed())
                 _verticalVelocity = Mathf.Sqrt(_jumpHeight * -2f * _gravity);
         }
     }
@@ -203,35 +221,56 @@ public class PlayerController : MonoBehaviour
         LayerMask enemyMask = LayerMask.GetMask("Enemy");
         Ray crosshairRay = _camera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-        if (CombatSystem.TryRaycastAttack(crosshairRay.origin, crosshairRay.direction,
-            _attackRange, enemyMask, out RaycastHit hit))
+        if (Physics.Raycast(crosshairRay, out RaycastHit hit, _attackRange, enemyMask)) 
         {
-            Health enemyHealth = hit.collider.GetComponent<Health>();
-            if (enemyHealth != null && !enemyHealth.IsDead())
+            Debug.DrawRay(crosshairRay.origin, crosshairRay.direction * hit.distance, Color.green);
+            Debug.DrawRay(hit.point, Vector3.up * 0.5f, Color.red);
+
+            _enemy = hit.collider.GetComponent<EnemyController>();
+            if (_enemy != null)
             {
-                enemyHealth.TakeDamage(_attackDamage);
+                _enemy.TakeDamage(_attackDamage);
                 _lastAttackTime = Time.time;
-                Debug.Log("Enemy Hit!");
+                Debug.Log("Enemy Hit! Dealt " + _attackDamage + " damage.");
             }
+        }
+        else
+        {
+            Debug.DrawRay(crosshairRay.origin, crosshairRay.direction * _attackRange, Color.yellow);
         }
     }
 
     public void TakeDamage(float amount)
     {
-        _enemy.TakeDamage(amount);
+        if (_currentLifeState == LifeState.IsDead) { return; }
+
+        _currentHealth -= amount;
+        Debug.Log($"Player took {amount} damage, current health: {_currentHealth}");
     }
     #endregion
 
     #region Events
     private void HandleDeath()
     {
+        if (_currentLifeState == LifeState.IsDead) { return; }
+
         Debug.Log("Player died!");
+    }
+
+    private void PlayDeathParticals()
+    {
+        // Implement particle effects for death
+    }
+
+    private void PlayDeathSounds()
+    {
+        // Implement sound effects for death
     }
     #endregion
 
     private void OnDestroy()
     {
-        if (_enemy != null)
-            _enemy.OnDeath -= HandleDeath;  
+        PlayDeathParticals();
+        PlayDeathSounds();
     }
 }
