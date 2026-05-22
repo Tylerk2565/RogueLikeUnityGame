@@ -8,41 +8,23 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private GameObject _newGamePanel;
     [SerializeField] private GameObject _loadGamePanel;
     [SerializeField] private Button _continueButton;
-
-    private bool _saveExists = true;
+    private bool _hasSave;
 
     private void Start()
     {
-
-    }
-
-    private void Update()
-    {
-        if (_saveExists)
-        {
-            _continueButton.interactable = true;
-        }
-        else
-        {
-            _continueButton.interactable = false;
-        }
+        _hasSave = PlayerPrefs.HasKey("HasSave");
     }
 
     public void PlayGame()
     {
-        SceneManager.LoadScene("MainLevel");
-    }
-    
-    public void NewGame()
-    {
-        _newGamePanel.SetActive(true);
-        // todo function for closing new game and logic for creating a new game
-    }
-
-    public void LoadGame()
-    {
-        _loadGamePanel.SetActive(true);
-        // todo function for closing load game and logic for selecting a save
+        if (_hasSave)
+        {
+            SceneManager.LoadScene("PlayerBase");
+        }
+        else
+        {
+            SceneManager.LoadScene("CharacterCreation");
+        }
     }
 
     public void OpenSettings()
