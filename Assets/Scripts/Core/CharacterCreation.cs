@@ -1,16 +1,17 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class CharacterCreation : MonoBehaviour
+public class CharacterCreation : CharacterCreationBase
 {
     #region Renderer References
+    [SerializeField] private GameObject[] _eyeballRenderers; // fixed color
+    private Renderer[] _pupilRenderers; // color change
     private Renderer[] _skinRenderers;
-    private Renderer[] _eyeRenderers;
+    private Renderer[] _eyelidRenderers; // mesh change (type options)
     private Renderer[] _mouthRenderers;
     private Renderer[] _noseRenderers;
     private Renderer[] _shirtRenderers;
     private Renderer[] _pantRenderers;
-    private Renderer[] _beltRenderers;
     private Renderer[] _shoeRenderers;
     private Renderer[] _hatRenderers;
     #endregion
@@ -18,20 +19,22 @@ public class CharacterCreation : MonoBehaviour
     #region Customization Options
     [Header("Customization Options")]
     [SerializeField] private Color[] _skinColorOptions;
-    [SerializeField] private Color[] _eyeColorOptions;
+    [SerializeField] private Color[] _pupilColorOptions;
+    [SerializeField] private Color[] _hatColorOptions;
+    [SerializeField] private Color[] _noseColorOptions;
+    [SerializeField] private Color[] _mouthColorOptions;
     [SerializeField] private Color[] _shirtColorOptions;
     [SerializeField] private Color[] _pantColorOptions;
-    [SerializeField] private Color[] _beltColorOptions;
     [SerializeField] private Color[] _shoeColorOptions;
 
     [SerializeField] private GameObject[] _skinTypeOptions;
     [SerializeField] private GameObject[] _hatTypeOptions;
-    [SerializeField] private GameObject[] _eyeTypeOptions;
+    [SerializeField] private GameObject[] _eyelidTypeOptions;
+    [SerializeField] private GameObject[] _pupilTypeOptions;
     [SerializeField] private GameObject[] _noseTypeOptions;
     [SerializeField] private GameObject[] _mouthTypeOptions;
     [SerializeField] private GameObject[] _shirtTypeOptions;
     [SerializeField] private GameObject[] _pantTypeOptions;
-    [SerializeField] private GameObject[] _beltTypeOptions;
     [SerializeField] private GameObject[] _shoeTypeOptions;
     #endregion
 
@@ -39,16 +42,17 @@ public class CharacterCreation : MonoBehaviour
     private int _skinColorIndex = 0;
     private int _skinTypeIndex = 0;
     private int _hatTypeIndex = 0;
-    private int _eyeTypeIndex = 0;
-    private int _eyeColorIndex = 0;
+    private int _hatColorIndex = 0;
+    private int _eyelidTypeIndex = 0;
+    private int _pupilColorIndex = 0;
     private int _noseTypeIndex = 0;
+    private int _noseColorIndex = 0;
     private int _mouthTypeIndex = 0;
+    private int _mouthColorIndex = 0;
     private int _shirtTypeIndex = 0;
     private int _shirtColorIndex = 0;
     private int _pantTypeIndex = 0;
     private int _pantColorIndex = 0;
-    private int _beltTypeIndex = 0;
-    private int _beltColorIndex = 0;
     private int _shoeTypeIndex = 0;
     private int _shoeColorIndex = 0;
     #endregion
@@ -58,22 +62,22 @@ public class CharacterCreation : MonoBehaviour
         ResetCharacter();
     }
 
-
     public void CreateCharacter()
     {
         PlayerPrefs.SetInt("SkinColor", _skinColorIndex);
         PlayerPrefs.SetInt("SkinType", _skinTypeIndex);
         PlayerPrefs.SetInt("HatType", _hatTypeIndex);
-        PlayerPrefs.SetInt("EyeType", _eyeTypeIndex);
-        PlayerPrefs.SetInt("EyeColor", _eyeColorIndex);
+        PlayerPrefs.SetInt("HatColor", _hatColorIndex);
+        PlayerPrefs.SetInt("EyelidType", _eyelidTypeIndex);
+        PlayerPrefs.SetInt("PupilColor", _pupilColorIndex);
         PlayerPrefs.SetInt("NoseType", _noseTypeIndex);
+        PlayerPrefs.SetInt("NoseColor", _noseColorIndex);
         PlayerPrefs.SetInt("MouthType", _mouthTypeIndex);
+        PlayerPrefs.SetInt("MouthColor", _mouthColorIndex);
         PlayerPrefs.SetInt("ShirtType", _shirtTypeIndex);
         PlayerPrefs.SetInt("ShirtColor", _shirtColorIndex);
         PlayerPrefs.SetInt("PantType", _pantTypeIndex);
         PlayerPrefs.SetInt("PantColor", _pantColorIndex);
-        PlayerPrefs.SetInt("BeltType", _beltTypeIndex);
-        PlayerPrefs.SetInt("BeltColor", _beltColorIndex);
         PlayerPrefs.SetInt("ShoeType", _shoeTypeIndex);
         PlayerPrefs.SetInt("ShoeColor", _shoeColorIndex);
 
@@ -82,22 +86,24 @@ public class CharacterCreation : MonoBehaviour
 
         SceneManager.LoadScene("PlayerBase");
     }
+
     public void ResetCharacter()
     {
         Debug.Log("Reset called");
         _skinColorIndex = 0;
         _skinTypeIndex = 0;
         _hatTypeIndex = 0;
-        _eyeTypeIndex = 0;
-        _eyeColorIndex = 0;
+        _hatColorIndex = 0;
+        _eyelidTypeIndex = 0;
+        _pupilColorIndex = 0;
         _noseTypeIndex = 0;
+        _noseColorIndex = 0;
         _mouthTypeIndex = 0;
+        _mouthColorIndex = 0;
         _shirtTypeIndex = 0;
         _shirtColorIndex = 0;
         _pantTypeIndex = 0;
         _pantColorIndex = 0;
-        _beltTypeIndex = 0;
-        _beltColorIndex = 0;
         _shoeTypeIndex = 0;
         _shoeColorIndex = 0;
 
@@ -113,38 +119,35 @@ public class CharacterCreation : MonoBehaviour
     {
         ApplyOption(_skinTypeOptions, _skinTypeIndex);
         ApplyOption(_hatTypeOptions, _hatTypeIndex);
-        ApplyOption(_eyeTypeOptions, _eyeTypeIndex);
+        ApplyOption(_eyelidTypeOptions, _eyelidTypeIndex);
         ApplyOption(_noseTypeOptions, _noseTypeIndex);
         ApplyOption(_mouthTypeOptions, _mouthTypeIndex);
         ApplyOption(_shirtTypeOptions, _shirtTypeIndex);
         ApplyOption(_pantTypeOptions, _pantTypeIndex);
-        ApplyOption(_beltTypeOptions, _beltTypeIndex);
         ApplyOption(_shoeTypeOptions, _shoeTypeIndex);
 
         _skinRenderers = GetRenderer(_skinTypeOptions, _skinTypeIndex);
-        _eyeRenderers = GetRenderer(_eyeTypeOptions, _eyeTypeIndex);
+        _eyelidRenderers = GetRenderer(_eyelidTypeOptions, _eyelidTypeIndex);
         _mouthRenderers = GetRenderer(_mouthTypeOptions, _mouthTypeIndex);
         _noseRenderers = GetRenderer(_noseTypeOptions, _noseTypeIndex);
         _shirtRenderers = GetRenderer(_shirtTypeOptions, _shirtTypeIndex);
         _pantRenderers = GetRenderer(_pantTypeOptions, _pantTypeIndex);
-        _beltRenderers = GetRenderer(_beltTypeOptions, _beltTypeIndex);
         _shoeRenderers = GetRenderer(_shoeTypeOptions, _shoeTypeIndex);
         _hatRenderers = GetRenderer(_hatTypeOptions, _hatTypeIndex);
+        _pupilRenderers = GetRenderer(_pupilTypeOptions, _eyelidTypeIndex);
 
         ApplyColor(_skinColorOptions, _skinColorIndex, _skinRenderers);
-        ApplyColor(_eyeColorOptions, _eyeColorIndex, _eyeRenderers);
+        ApplyColor(_hatColorOptions, _hatColorIndex, _hatRenderers);
+        ApplyColor(_skinColorOptions, _skinColorIndex, _eyelidRenderers);
+        ApplyColor(_pupilColorOptions, _pupilColorIndex, _pupilRenderers);
+        ApplyColor(_noseColorOptions, _noseColorIndex, _noseRenderers);
+        ApplyColor(_mouthColorOptions, _mouthColorIndex, _mouthRenderers);
         ApplyColor(_shirtColorOptions, _shirtColorIndex, _shirtRenderers);
         ApplyColor(_pantColorOptions, _pantColorIndex, _pantRenderers);
-        ApplyColor(_beltColorOptions, _beltColorIndex, _beltRenderers);
         ApplyColor(_shoeColorOptions, _shoeColorIndex, _shoeRenderers);
     }
 
     #region Helper Methods
-    private Renderer[] GetRenderer(GameObject[] options, int index)
-    {
-        return options[index].GetComponentsInChildren<Renderer>();
-    }
-
     private int NextIndex(int currentIndex, int optionCount)
     {
         currentIndex++;
@@ -168,38 +171,61 @@ public class CharacterCreation : MonoBehaviour
 
         return currentIndex;
     }
+    #endregion
 
-    private void ApplyOption(GameObject[] options, int selectedIndex)
+
+    #region Setter Methods
+    public void SetSkinColor(int index)
     {
-        for (int i = 0; i < options.Length; i++)
-        {
-            options[i].SetActive(i == selectedIndex);
-        }
+        _skinColorIndex = index;
+        ApplyColor(_skinColorOptions, _skinColorIndex, _skinRenderers);
+        ApplyColor(_skinColorOptions, _skinColorIndex, _eyelidRenderers);
     }
 
-    private void ApplyColor(Color[] colors, int selectedIndex, Renderer[] renderers)
+    public void SetHatColor(int index)
     {
-        var currentColor = colors[selectedIndex];
-        foreach (var renderer in renderers)
-        {
-            renderer.material.color = currentColor;
-        }
+        _hatColorIndex = index;
+        ApplyColor(_hatColorOptions, _hatColorIndex, _hatRenderers);
+    }
+
+    public void SetEyeColor(int index)
+    {
+        _pupilColorIndex = index;
+        ApplyColor(_pupilColorOptions, _pupilColorIndex, _pupilRenderers);
+    }
+
+    public void SetNoseColor(int index)
+    {
+        _noseColorIndex = index;
+        ApplyColor(_noseColorOptions, _noseColorIndex, _noseRenderers);
+    }
+
+    public void SetMouthColor(int index)
+    {
+        _mouthColorIndex = index;
+        ApplyColor(_mouthColorOptions, _mouthColorIndex, _mouthRenderers);
+    }
+
+    public void SetShirtColor(int index)
+    {
+        _shirtColorIndex = index;
+        ApplyColor(_shirtColorOptions, _shirtColorIndex, _shirtRenderers);
+    }
+
+    public void SetPantColor(int index)
+    {
+        _pantColorIndex = index;
+        ApplyColor(_pantColorOptions, _pantColorIndex, _pantRenderers);
+    }
+
+    public void SetShoeColor(int index)
+    {
+        _shoeColorIndex = index;
+        ApplyColor(_shoeColorOptions, _shoeColorIndex, _shoeRenderers);
     }
     #endregion
 
     #region Next/Previous Methods 
-    public void NextSkinColor()
-    {
-        _skinColorIndex = NextIndex(_skinColorIndex, _skinColorOptions.Length);
-        ApplyColor(_skinColorOptions, _skinColorIndex, _skinRenderers);
-    }
-
-    public void PreviousSkinColor()
-    {
-        _skinColorIndex = PreviousIndex(_skinColorIndex, _skinColorOptions.Length);
-        ApplyColor(_skinColorOptions, _skinColorIndex, _skinRenderers);
-    }
-
     public void NextSkinType()
     {
         _skinTypeIndex = NextIndex(_skinTypeIndex, _skinTypeOptions.Length);
@@ -230,28 +256,18 @@ public class CharacterCreation : MonoBehaviour
 
     public void NextEyeType()
     {
-        _eyeTypeIndex = NextIndex(_eyeTypeIndex, _eyeTypeOptions.Length);
-        ApplyOption(_eyeTypeOptions, _eyeTypeIndex);
-        _eyeRenderers = GetRenderer(_eyeTypeOptions, _eyeTypeIndex);
+        _eyelidTypeIndex = NextIndex(_eyelidTypeIndex, _eyelidTypeOptions.Length);
+        ApplyOption(_eyelidTypeOptions, _eyelidTypeIndex);
+        _eyelidRenderers = GetRenderer(_eyelidTypeOptions, _eyelidTypeIndex);
+        _pupilRenderers = GetRenderer(_pupilTypeOptions, _eyelidTypeIndex);
     }
 
     public void PreviousEyeType()
     {
-        _eyeTypeIndex = PreviousIndex(_eyeTypeIndex, _eyeTypeOptions.Length);
-        ApplyOption(_eyeTypeOptions, _eyeTypeIndex);
-        _eyeRenderers = GetRenderer(_eyeTypeOptions, _eyeTypeIndex);
-    }
-
-    public void NextEyeColor()
-    {
-        _eyeColorIndex = NextIndex(_eyeColorIndex, _eyeColorOptions.Length);
-        ApplyColor(_eyeColorOptions, _eyeColorIndex, _eyeRenderers);
-    }
-
-    public void PreviousEyeColor()
-    {
-        _eyeColorIndex = PreviousIndex(_eyeColorIndex, _eyeColorOptions.Length);
-        ApplyColor(_eyeColorOptions, _eyeColorIndex, _eyeRenderers);
+        _eyelidTypeIndex = PreviousIndex(_eyelidTypeIndex, _eyelidTypeOptions.Length);
+        ApplyOption(_eyelidTypeOptions, _eyelidTypeIndex);
+        _eyelidRenderers = GetRenderer(_eyelidTypeOptions, _eyelidTypeIndex);
+        _pupilRenderers = GetRenderer(_pupilTypeOptions, _eyelidTypeIndex);
     }
 
     public void NextNoseType()
@@ -296,18 +312,6 @@ public class CharacterCreation : MonoBehaviour
         _shirtRenderers = GetRenderer(_shirtTypeOptions, _shirtTypeIndex);
     }
 
-    public void NextShirtColor()
-    {
-        _shirtColorIndex = NextIndex(_shirtColorIndex, _shirtColorOptions.Length);
-        ApplyColor(_shirtColorOptions, _shirtColorIndex, _shirtRenderers);
-    }
-
-    public void PreviousShirtColor()
-    {
-        _shirtColorIndex = PreviousIndex(_shirtColorIndex, _shirtColorOptions.Length);
-        ApplyColor(_shirtColorOptions, _shirtColorIndex, _shirtRenderers);
-    }
-
     public void NextPantType()
     {
         _pantTypeIndex = NextIndex(_pantTypeIndex, _pantTypeOptions.Length);
@@ -322,44 +326,6 @@ public class CharacterCreation : MonoBehaviour
         _pantRenderers = GetRenderer(_pantTypeOptions, _pantTypeIndex);
     }
 
-    public void NextPantColor()
-    {
-        _pantColorIndex = NextIndex(_pantColorIndex, _pantColorOptions.Length);
-        ApplyColor(_pantColorOptions, _pantColorIndex, _pantRenderers);
-    }
-
-    public void PreviousPantColor()
-    {
-        _pantColorIndex = PreviousIndex(_pantColorIndex, _pantColorOptions.Length);
-        ApplyColor(_pantColorOptions, _pantColorIndex, _pantRenderers);
-    }
-
-    public void NextBeltType()
-    {
-        _beltTypeIndex = NextIndex(_beltTypeIndex, _beltTypeOptions.Length);
-        ApplyOption(_beltTypeOptions, _beltTypeIndex);
-        _beltRenderers = GetRenderer(_beltTypeOptions, _beltTypeIndex);
-    }
-
-    public void PreviousBeltType()
-    {
-        _beltTypeIndex = PreviousIndex(_beltTypeIndex, _beltTypeOptions.Length);
-        ApplyOption(_beltTypeOptions, _beltTypeIndex);
-        _beltRenderers = GetRenderer(_beltTypeOptions, _beltTypeIndex);
-    }
-
-    public void NextBeltColor()
-    {
-        _beltColorIndex = NextIndex(_beltColorIndex, _beltColorOptions.Length);
-        ApplyColor(_beltColorOptions, _beltColorIndex, _beltRenderers);
-    }
-
-    public void PreviousBeltColor()
-    {
-        _beltColorIndex = PreviousIndex(_beltColorIndex, _beltColorOptions.Length);
-        ApplyColor(_beltColorOptions, _beltColorIndex, _beltRenderers);
-    }
-
     public void NextShoeType()
     {
         _shoeTypeIndex = NextIndex(_shoeTypeIndex, _shoeTypeOptions.Length);
@@ -372,18 +338,6 @@ public class CharacterCreation : MonoBehaviour
         _shoeTypeIndex = PreviousIndex(_shoeTypeIndex, _shoeTypeOptions.Length);
         ApplyOption(_shoeTypeOptions, _shoeTypeIndex);
         _shoeRenderers = GetRenderer(_shoeTypeOptions, _shoeTypeIndex);
-    }
-
-    public void NextShoeColor()
-    {
-        _shoeColorIndex = NextIndex(_shoeColorIndex, _shoeColorOptions.Length);
-        ApplyColor(_shoeColorOptions, _shoeColorIndex, _shoeRenderers);
-    }
-
-    public void PreviousShoeColor()
-    {
-        _shoeColorIndex = PreviousIndex(_shoeColorIndex, _shoeColorOptions.Length);
-        ApplyColor(_shoeColorOptions, _shoeColorIndex, _shoeRenderers);
     }
     #endregion
 }
