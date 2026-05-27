@@ -3,8 +3,8 @@ using UnityEngine;
 public class AppearanceLoader : CharacterCreationBase
 {
     #region Renderer References
-    [SerializeField] private Renderer[] _eyeballRenderers;
-    [SerializeField] private Renderer[] _pupilRenderers; 
+    [SerializeField] private GameObject[] _eyeballRenderers;
+    private Renderer[] _pupilRenderers;
     private Renderer[] _skinRenderers;
     private Renderer[] _eyelidRenderers; 
     private Renderer[] _mouthRenderers;
@@ -29,6 +29,7 @@ public class AppearanceLoader : CharacterCreationBase
     [SerializeField] private GameObject[] _skinTypeOptions;
     [SerializeField] private GameObject[] _hatTypeOptions;
     [SerializeField] private GameObject[] _eyelidTypeOptions;
+    [SerializeField] private GameObject[] _pupilTypeOptions;
     [SerializeField] private GameObject[] _noseTypeOptions;
     [SerializeField] private GameObject[] _mouthTypeOptions;
     [SerializeField] private GameObject[] _shirtTypeOptions;
@@ -77,6 +78,7 @@ public class AppearanceLoader : CharacterCreationBase
         _pantRenderers = GetRenderer(_pantTypeOptions, pantType);
         _shoeRenderers = GetRenderer(_shoeTypeOptions, shoeType);
         _hatRenderers = GetRenderer(_hatTypeOptions, hatType);
+        _pupilRenderers = GetRenderer(_pupilTypeOptions, eyelidType);
 
         ApplyColor(_skinColorOptions, skinColor, _skinRenderers);
         ApplyColor(_skinColorOptions, skinColor, _eyelidRenderers);
