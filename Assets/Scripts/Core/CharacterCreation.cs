@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 public class CharacterCreation : CharacterCreationBase
 {
@@ -57,8 +59,16 @@ public class CharacterCreation : CharacterCreationBase
     private int _shoeColorIndex = 0;
     #endregion
 
+    #region References
+    private InputAction _click;
+    private InputAction _move;
+    [SerializeField] private Transform _characterModel;
+    #endregion
+
     private void Start()
     {
+        _click = InputSystem.actions.FindAction("Click");
+        _move = InputSystem.actions.FindAction("Move");
         ResetCharacter();
     }
 
@@ -108,11 +118,6 @@ public class CharacterCreation : CharacterCreationBase
         _shoeColorIndex = 0;
 
         ApplyCustomization();
-    }
-
-    public void RotateCharacter()
-    {
-
     }
 
     private void ApplyCustomization()
